@@ -95,7 +95,7 @@ public class Model extends Observable {
     }
 
     /** Tilt the board toward SIDE. Return true iff this changes the board.
-     *
+     * <p>
      * 1. If two Tile objects are adjacent in the direction of motion and have
      *    the same value, they are merged into one Tile of twice the original
      *    value and that new value is added to the score instance variable
@@ -109,9 +109,9 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-        if(side == Side.NORTH){
-            changed = moveUp(changed);
-        }
+        if(side == Side.NORTH) changed = moveUp(changed);
+
+
 
         checkGameOver();
         if (changed) {
@@ -121,27 +121,27 @@ public class Model extends Observable {
     }
 
     private boolean moveUp(Boolean changed) {
-        int moves[]= {0,0,0,0};
-        boolean isMerged[] = {false,false,false,false};
+        int[] moves = {0,0,0,0};
+        int sum = 0;
+        boolean[] isMerged = {false,false,false,false};
         for (int c = 0; c < 4; c++) {
             for (int r = 3; r >-1 ; r--) {
                 Tile t = board.tile(c,r);
                 if(board.tile(c,r)==null){
                     moves[c]++;
+                    sum++;
                 }
-                else{
-                    if(canMergeUp(c,r,moves,board,isMerged)){
+                else if(canMergeUp(c,r,moves,board,isMerged)){
                         board.move(c,r+moves[c]+1,t);
                         score+=board.tile(c,r+moves[c]+1).value();
                         moves[c]++;
                         changed = true;
                     }
-                    else{
-                        board.move(c,r+moves[c],t);
-                        changed = moves[c]>0?true:false;
-                        isMerged[c] = false;
-                    }
+                else{
+                    if(sum>0 && moves[c]>0){board.move(c,r+moves[c],t); changed = true;}
+                    else changed = false;
                 }
+
             }
         }
         return changed;
@@ -202,9 +202,7 @@ public class Model extends Observable {
     public static boolean atLeastOneMoveExists(Board b) {
         if(emptySpaceExists(b)) return true;
         else
-            if(atLeastOneValidAdjacentTiles(b)) return true;
-
-        return false;
+            return atLeastOneValidAdjacentTiles(b);
     }
 
     private static boolean atLeastOneValidAdjacentTiles(Board b) {
