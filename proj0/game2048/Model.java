@@ -109,14 +109,15 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-        if(side == Side.NORTH) changed = moveUp(changed);
-
-
-
+        // TODO: Modify this.board (and perhaps this.score) to account
+        // for the tilt to the Side SIDE. If the board changed, set the
+        // changed local variable to true.
+        board.setViewingPerspective(side);
+        moveUp(changed);
+        System.out.println(changed);
         checkGameOver();
-        if (changed) {
-            setChanged();
-        }
+        changed =true;
+        if (changed) setChanged();
         return changed;
     }
 
@@ -139,10 +140,12 @@ public class Model extends Observable {
                     }
                 else{
                     if(sum>0 && moves[c]>0){board.move(c,r+moves[c],t); changed = true;}
-                    else changed = false;
                 }
 
             }
+        }
+        for (int t:moves) {
+            System.out.print(t+" ");
         }
         return changed;
     }
@@ -200,9 +203,7 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        if(emptySpaceExists(b)) return true;
-        else
-            return atLeastOneValidAdjacentTiles(b);
+        return emptySpaceExists(b) || atLeastOneValidAdjacentTiles(b);
     }
 
     private static boolean atLeastOneValidAdjacentTiles(Board b) {
