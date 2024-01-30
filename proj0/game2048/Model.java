@@ -1,6 +1,5 @@
 package game2048;
 
-import javax.swing.*;
 import java.util.Formatter;
 import java.util.Observable;
 
@@ -110,16 +109,47 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        if(side == Side.NORTH){
+            changed = moveUp(changed);
+        }
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    private boolean moveUp(Boolean changed) {
+        int moves[]= {0,0,0,0};
+        boolean ismerged[] = {false,false,false,false};
+        for (int c = 0; c < 4; c++) {
+            for (int r = 3; r >-1 ; r--) {
+                Tile t = board.tile(c,r);
+                if(board.tile(c,r)==null){
+                    moves[c]++;
+                }
+                else{
+                    if(canMergeUp(c,r,moves,board,ismerged)){
+                        board.move(c,r+moves[c]+1,t);
+                        score+=board.tile(c,r+moves[c]+1).value();
+                        moves[c]++;
+                        ismerged[c] = true;
+                    }
+                    else{
+                        board.move(c,r+moves[c],t);
+                    }
+                    changed = true;
+                }
+            }
+        }
+        return changed;
+    }
+
+    private boolean canMergeUp(int c,int r,int[]moves,Board b,boolean[]isMerged) {
+        if(!isMerged[c] && r+moves[c]+1<4 && b.tile(c,r+moves[c]+1).value() == b.tile(c,r).value())
+            return true;
+        return false;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -167,28 +197,27 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        if(emptySpaceExists(b))
-            return true;
+        if(emptySpaceExists(b)) return true;
         else
-            if(isValidAdjacentTiles(b)) return true;
+            if(atLeastOneValidAdjacentTiles(b)) return true;
 
         return false;
     }
 
-    private static boolean isValidAdjacentTiles(Board b) {
+    private static boolean atLeastOneValidAdjacentTiles(Board b) {
        for (int col = 0;col<b.size();col++){
            for (int row = 0; row <b.size() ; row++) {
                 if((col-1>=0)){
-                    if(b.tile(col,row).value() == b.tile(col-1,row).value())return true;
+                    if(b.tile(col,row).value() == b.tile(col-1,row).value()) return true;
                 }
                  if((row-1>=0)){
-                    if(b.tile(col,row).value() == b.tile(col,row-1).value())return true;
+                    if(b.tile(col,row).value() == b.tile(col,row-1).value()) return true;
                 }
                  if((col+1<b.size())){
-                    if(b.tile(col,row).value() == b.tile(col+1,row).value())return true;
+                    if(b.tile(col,row).value() == b.tile(col+1,row).value()) return true;
                 }
                  if((row+1<b.size())){
-                    if(b.tile(col,row).value() == b.tile(col,row+1).value())return true;
+                    if(b.tile(col,row).value() == b.tile(col,row+1).value()) return true;
                 }
            }
        }
