@@ -122,7 +122,7 @@ public class Model extends Observable {
 
     private boolean moveUp(Boolean changed) {
         int moves[]= {0,0,0,0};
-        boolean ismerged[] = {false,false,false,false};
+        boolean isMerged[] = {false,false,false,false};
         for (int c = 0; c < 4; c++) {
             for (int r = 3; r >-1 ; r--) {
                 Tile t = board.tile(c,r);
@@ -130,16 +130,17 @@ public class Model extends Observable {
                     moves[c]++;
                 }
                 else{
-                    if(canMergeUp(c,r,moves,board,ismerged)){
+                    if(canMergeUp(c,r,moves,board,isMerged)){
                         board.move(c,r+moves[c]+1,t);
                         score+=board.tile(c,r+moves[c]+1).value();
                         moves[c]++;
-                        ismerged[c] = true;
+                        changed = true;
                     }
                     else{
                         board.move(c,r+moves[c],t);
+                        changed = moves[c]>0?true:false;
+                        isMerged[c] = false;
                     }
-                    changed = true;
                 }
             }
         }
@@ -147,8 +148,10 @@ public class Model extends Observable {
     }
 
     private boolean canMergeUp(int c,int r,int[]moves,Board b,boolean[]isMerged) {
-        if(!isMerged[c] && r+moves[c]+1<4 && b.tile(c,r+moves[c]+1).value() == b.tile(c,r).value())
+        if(!isMerged[c] && r+moves[c]+1<4 && b.tile(c,r+moves[c]+1).value() == b.tile(c,r).value()) {
+            isMerged[c] = true;
             return true;
+        }
         return false;
     }
 
