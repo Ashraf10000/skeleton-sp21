@@ -113,44 +113,53 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
         board.setViewingPerspective(side);
-        moveUp(changed);
-        System.out.println(changed);
+        changed = move(changed);
+        board.setViewingPerspective(Side.NORTH);
+        //System.out.println("\n["+changed+","+ side+"]");
         checkGameOver();
-        changed =true;
         if (changed) setChanged();
         return changed;
     }
 
-    private boolean moveUp(Boolean changed) {
+    private boolean move(Boolean changed) {
         int[] moves = {0,0,0,0};
-        int sum = 0;
         boolean[] isMerged = {false,false,false,false};
         for (int c = 0; c < 4; c++) {
             for (int r = 3; r >-1 ; r--) {
                 Tile t = board.tile(c,r);
                 if(board.tile(c,r)==null){
                     moves[c]++;
-                    sum++;
                 }
-                else if(canMergeUp(c,r,moves,board,isMerged)){
+                else{
+                    if(canMerge(c,r,moves,board,isMerged)){
                         board.move(c,r+moves[c]+1,t);
                         score+=board.tile(c,r+moves[c]+1).value();
                         moves[c]++;
                         changed = true;
                     }
-                else{
-                    if(sum>0 && moves[c]>0){board.move(c,r+moves[c],t); changed = true;}
+                    else{
+                        if(moves[c]>0){
+                            board.move(c,r+moves[c],t);
+                            changed = true;
+                        }
+                    }
                 }
 
             }
         }
-        for (int t:moves) {
+
+        /*for (int t:moves) {
             System.out.print(t+" ");
         }
+        System.out.println();
+        for (boolean t:isMerged) {
+            System.out.print(t+" ");
+        }
+         */
         return changed;
     }
 
-    private boolean canMergeUp(int c,int r,int[]moves,Board b,boolean[]isMerged) {
+    private boolean canMerge(int c,int r,int[]moves,Board b,boolean[]isMerged) {
         if(!isMerged[c] && r+moves[c]+1<4 && b.tile(c,r+moves[c]+1).value() == b.tile(c,r).value()) {
             isMerged[c] = true;
             return true;
@@ -203,10 +212,10 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        return emptySpaceExists(b) || atLeastOneValidAdjacentTiles(b);
+        return emptySpaceExists(b) || atLeastOneValidAdjacentTile(b);
     }
 
-    private static boolean atLeastOneValidAdjacentTiles(Board b) {
+    private static boolean atLeastOneValidAdjacentTile(Board b) {
        for (int col = 0;col<b.size();col++){
            for (int row = 0; row <b.size() ; row++) {
                 if((col-1>=0)){
