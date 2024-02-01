@@ -115,7 +115,6 @@ public class Model extends Observable {
         board.setViewingPerspective(side);
         changed = move(changed);
         board.setViewingPerspective(Side.NORTH);
-        //System.out.println("\n["+changed+","+ side+"]");
         checkGameOver();
         if (changed) setChanged();
         return changed;
@@ -140,6 +139,7 @@ public class Model extends Observable {
                     else{
                         if(moves[c]>0){
                             board.move(c,r+moves[c],t);
+                            isMerged[c] = false;
                             changed = true;
                         }
                     }
@@ -147,15 +147,6 @@ public class Model extends Observable {
 
             }
         }
-
-        /*for (int t:moves) {
-            System.out.print(t+" ");
-        }
-        System.out.println();
-        for (boolean t:isMerged) {
-            System.out.print(t+" ");
-        }
-         */
         return changed;
     }
 
